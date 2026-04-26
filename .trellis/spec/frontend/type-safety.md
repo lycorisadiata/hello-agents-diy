@@ -1,51 +1,73 @@
 # Type Safety
 
-> Type safety patterns in this project.
+> Current type-safety conventions relevant to this repository.
 
 ---
 
 ## Overview
 
-<!--
-Document your project's type safety conventions here.
+There is no TypeScript code in this repository today.
 
-Questions to answer:
-- What type system do you use?
-- How are types organized?
-- What validation library do you use?
-- How do you handle type inference?
--->
+The repo has no `tsconfig.json`, no `.ts` or `.tsx` files, and no runtime validation library such as Zod or Yup. Do not document TypeScript conventions as if they already exist.
 
-(To be filled by the team)
+Current type-safety practices are Python-based:
+
+- `from __future__ import annotations` is used broadly, for example in `E:/mall/hello-agents-diy/.trellis/scripts/common/types.py`, `E:/mall/hello-agents-diy/.trellis/scripts/common/config.py`, and `E:/mall/hello-agents-diy/.claude/hooks/session-start.py`
+- typed return signatures and unions are used throughout helper modules
+- `TypedDict` and frozen dataclasses are used for task metadata in `E:/mall/hello-agents-diy/.trellis/scripts/common/types.py`
 
 ---
 
 ## Type Organization
 
-<!-- Where types are defined, shared types vs local types -->
+Current structured typing lives in Python modules, especially under `.trellis/scripts/common/`.
 
-(To be filled by the team)
+Examples:
+
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/types.py` defines `TaskData`, `TaskInfo`, and `AgentRecord`
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/config.py` annotates config readers like `get_packages(...) -> dict[str, dict] | None`
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/paths.py` uses explicit `Path | None` return types for filesystem helpers
 
 ---
 
 ## Validation
 
-<!-- Runtime validation patterns (Zod, Yup, io-ts, etc.) -->
+There is no dedicated runtime schema validation framework.
 
-(To be filled by the team)
+Current validation is lightweight and manual:
+
+- parse JSON and return `{}` or `None` on failure, as in `E:/mall/hello-agents-diy/.claude/hooks/statusline.py` and `E:/mall/hello-agents-diy/.trellis/scripts/common/io.py`
+- verify config types with `isinstance`, as in `E:/mall/hello-agents-diy/.trellis/scripts/common/config.py`
+- inspect dict keys defensively with `.get(...)`, as in `E:/mall/hello-agents-diy/.claude/hooks/session-start.py` and `E:/mall/hello-agents-diy/.trellis/scripts/task.py`
 
 ---
 
 ## Common Patterns
 
-<!-- Type utilities, generics, type guards -->
-
-(To be filled by the team)
+- use immutable or narrow public views where useful, for example `@dataclass(frozen=True)` for `TaskInfo`
+- use `TypedDict(total=False)` for partially populated serialized records, as in `TaskData` and `AgentRecord`
+- keep original raw dicts when writes must preserve unknown fields, as documented by `TaskInfo.raw`
+- use explicit union return types for fallback behavior, such as `dict | None`, `str | None`, and `Path | None`
 
 ---
 
 ## Forbidden Patterns
 
-<!-- any, type assertions, etc. -->
+- Do not invent TypeScript interfaces, React prop types, or Zod schemas that do not exist in this repository.
+- Do not claim static frontend type coverage; there is no frontend code to type-check.
+- Do not replace defensive file/config parsing with unchecked assumptions about input shape.
 
-(To be filled by the team)
+---
+
+## Guidance for Future Frontend Code
+
+If the project later adds TypeScript frontend code, rewrite this file around the real compiler settings, shared types, and validation tools that get adopted.
+
+---
+
+## Examples
+
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/types.py`
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/config.py`
+- `E:/mall/hello-agents-diy/.trellis/scripts/common/paths.py`
+- `E:/mall/hello-agents-diy/.claude/hooks/statusline.py`
