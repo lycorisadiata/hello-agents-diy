@@ -1,2 +1,4 @@
 .claude/settings.local.json
 .claude/worktrees/
+.chapter1_source.md
+demo/**/.env
